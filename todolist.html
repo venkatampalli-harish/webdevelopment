@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+<body>
+  <h2>To-Do App (With Save)</h2>
+  <input id="task-input" placeholder="Enter task">
+  <button id="add-btn">Add</button>
+  <ul id="task-list"></ul>
+
+  <script>
+    const input = document.getElementById("task-input");
+    const list = document.getElementById("task-list");
+    const STORAGE_KEY = "todo_list";
+
+    // Load saved tasks
+    function loadTasks() {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      saved.forEach(t => createTask(t.text, t.done));
+    }
+
+    // Save tasks
+    function saveTasks() {
+      const tasks = [];
+      list.querySelectorAll("li").forEach(li => {
+        tasks.push({
+          text: li.querySelector("span").textContent,
+          done: li.querySelector("input").checked
+        });
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    }
+
+    function createTask(text, done=false) {
+      const li = document.createElement("li");
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = done;
+      checkbox.onchange = () => {
+        span.style.textDecoration = checkbox.checked ? "line-through" : "none";
+        saveTasks();
+      };
+
+      const span = document.createElement("span");
+      span.textContent = text;
+      if (done) span.style.textDecoration = "line-through";
+
+      const delBtn = document.createElement("button");
+      delBtn.textContent = "❌";
+      delBtn.onclick = () => { li.remove(); saveTasks(); };
+
+      li.appendChild(checkbox);
+      li.appendChild(span);
+      li.appendChild(delBtn);
+      list.appendChild(li);
+    }
+
+    document.getElementById("add-btn").addEventListener("click", () => {
+      const text = input.value.trim();
+      if (!text) return;
+      createTask(text);
+      saveTasks();
+      input.value = "";
+    });
+
+    loadTasks();
+  </script>
+</body>
+</html>
